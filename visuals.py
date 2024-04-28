@@ -112,11 +112,6 @@ axes[1, 0].bar(year_accessible_data['year'],
                year_accessible_data['accessible_fraction'],
                label='Accessible', color='mediumpurple', edgecolor='black')
 
-# for bar in bar2:
-#     height = 1 - bar.get_height()
-#     axes[1, 0].text(bar.get_x() + bar.get_width()/2, bar.get_y() +
-#                     height/2, f"{height:.2f}", rotation=90, va='center', ha='center')
-
 axes[1, 0].set_xlabel('Year')
 axes[1, 0].set_ylabel('Fraction of Accessible Lecture Series')
 axes[1, 0].tick_params(axis='x', rotation=45)
@@ -125,7 +120,7 @@ axes[1, 0].grid(True, which='both', linestyle='--',
 axes[1, 0].text(-0.1, 1.1, 'C', transform=axes[1, 0].transAxes,
                 fontsize=16, fontweight='bold', va='top', ha='right')
 
-
 plt.tight_layout()
 plt.savefig("plot.pdf")
+plt.savefig("plot.jpeg")
 plt.show()

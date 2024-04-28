@@ -3,21 +3,32 @@ from tqdm import tqdm
 from sqlalchemy import *
 import pandas as pd
 
+
+# Create a sqlalchemy engine
+engine = create_engine('sqlite:///lecture_data.db')
+
+# Uncomment if you want to retrieve links from scratch
+# links = retrieve_lecture_links()
+
+# Retrieve all lecture links from the database
+links = engine.connect().execute(text("SELECT url FROM lectures")).fetchall()
+
 data = []
 failed = []
 
-dchab_url = "https://video.ethz.ch/lectures/d-chab.html"
-
-for link in tqdm(retrieve_lecture_links()):
+for link in tqdm(links, unit="link"):
     try:
-        data.append(retrieve_meta_data(link))
+        data.append(retrieve_meta_data(link[0]))
     except Exception as e:
         print("Failed: ", e)
-        failed.append(link)
+        failed.append(link[0])
 
+print("Failures")
+if len(failed) == 0:
+    print("None")
+for fail in failed:
+    print(fail)
 
-# Create a SQLite database
-engine = create_engine('sqlite:///lecture_data.db')
 
 # Convert the scraped data into a pandas DataFrame
 df = pd.DataFrame(data)
