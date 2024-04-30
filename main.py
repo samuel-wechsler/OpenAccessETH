@@ -8,17 +8,17 @@ import pandas as pd
 engine = create_engine('sqlite:///lecture_data.db')
 
 # Uncomment if you want to retrieve links from scratch
-# links = retrieve_lecture_links()
+links = retrieve_lecture_links()
 
 # Retrieve all lecture links from the database
-links = engine.connect().execute(text("SELECT url FROM lectures")).fetchall()
+# links = engine.connect().execute(text("SELECT url FROM lectures")).fetchall()
 
 data = []
 failed = []
 
 for link in tqdm(links, unit="link"):
     try:
-        data.append(retrieve_meta_data(link[0]))
+        data.append(retrieve_meta_data(link))
     except Exception as e:
         print("Failed: ", e)
         failed.append(link[0])

@@ -114,10 +114,10 @@ def get_semester(year_link):
     for link in soup.find_all("a", href=True):
         if "spring.html" in link["href"]:
             semester_links.append(
-                urljoin(year_link + "/", "spring.html"))
+                urljoin(year_link.replace(".html", "") + "/", "spring.html"))
         elif "autumn.html" in link["href"]:
             semester_links.append(
-                urljoin(year_link+"/", "autumn.html"))
+                urljoin(year_link.replace(".html", "")+"/", "autumn.html"))
         if max_links and len(semester_links) >= max_links:
             break
 
@@ -146,7 +146,7 @@ def get_lectures(url):
             link = urljoin(url+"/", link)
             lecture_links.append(link)
 
-    return lecture_links
+    return list(set(lecture_links))
 
 
 def retrieve_lecture_links_department(department_site):
@@ -195,9 +195,7 @@ def retrieve_lecture_links():
 
             for semester in semesters:
                 lectures = get_lectures(semester)
-
                 links.extend(lectures)
-
     unique_links = list(set(links))
     print(f"Total unique lecture links retrieved: {len(unique_links)}")
     return unique_links
@@ -230,7 +228,6 @@ def check_access(json_data):
     """
     # Find the protection token
     protection_token = json_data.get("protection")
-
     return protection_token == "NONE"
 
 
