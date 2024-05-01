@@ -1,37 +1,51 @@
 from scraper import *
 from tqdm import tqdm
-from sqlalchemy import *
+from sqlalchemy import create_engine, text
 import pandas as pd
 
+# # Part 1: Retrieve all metadata from video.ethz.ch
 
-# Create a sqlalchemy engine
+# # Create a SQLAlchemy engine
 engine = create_engine('sqlite:///lecture_data.db')
 
-# Uncomment if you want to retrieve links from scratch
-links = retrieve_lecture_links()
+# # Retrieve all lecture links from the database
+# with engine.connect() as connection:
+#     links = connection.execute(text("SELECT url FROM lectures")).fetchall()
 
-# Retrieve all lecture links from the database
-# links = engine.connect().execute(text("SELECT url FROM lectures")).fetchall()
+# # Uncomment if you want to retrieve links from scratch
+# # links = retrieve_lecture_links()
 
-data = []
-failed = []
+# data = []
+# failed = []
 
-for link in tqdm(links, unit="link"):
-    try:
-        data.append(retrieve_meta_data(link))
-    except Exception as e:
-        print("Failed: ", e)
-        failed.append(link[0])
+# # Process each link and retrieve metadata
+# for link in tqdm(links, desc="Retrieving metadata", unit="link"):
+#     try:
+#         metadata = retrieve_meta_data(link[0])  # Assuming link is a tuple
+#         data.append(metadata)
+#     except Exception as e:
+#         print(f"Failed to retrieve {link[0]}: {e}")
+#         failed.append(link[0])
 
-print("Failures")
-if len(failed) == 0:
-    print("None")
-for fail in failed:
-    print(fail)
+# # Report failures
+# print("Failures:")
+# if failed:
+#     for fail in failed:
+#         print(fail)
+# else:
+#     print("None")
 
+# # Convert the scraped data into a pandas DataFrame
+# df = pd.DataFrame(data)
+# # Store the DataFrame in the SQLite database
+# df.to_sql('lectures', engine, if_exists='replace', index=False)
 
-# Convert the scraped data into a pandas DataFrame
-df = pd.DataFrame(data)
+# Part 2: Retrieve all entries from ETH's course catalogue
 
-# Store the DataFrame in the SQLite database
-df.to_sql('lectures', engine, if_exists='replace')
+# Retrieve course catalogue data
+course_data = get_course_catalogue()
+
+# Convert the course data into a DataFrame
+df_courses = pd.DataFrame(course_data)
+# Append the data to the 'catalogue' table in the database
+df_courses.to_sql('catalogue', engine, if_exists='append', index=False)
