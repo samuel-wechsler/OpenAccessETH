@@ -1,7 +1,7 @@
 # Evaluation of Accessibility of ETH Lecture Recordings
 
 ## Overview
-This repository contains Python scripts designed to scrape, store, and analyze video lecture links and metadata from the ETH Zurich video portal ([https://video.ethz.ch/](https://video.ethz.ch/)). The goal of this project is to assess the accessibility of lecture recordings offered by ETH Zurich.
+This repository contains Python scripts designed to extract metadata from the ETH Zurich video portal([https://video.ethz.ch/](https://video.ethz.ch/)) as well as ETH's course catalogue. The goal of this project is to assess the accessibility of lecture recordings offered by ETH Zurich.
 
 ## Data Availability
 The datasets compiled in this project are accessible in both SQL and CSV formats. For each lecture series featured on the ETH Zurich video portal, the following metadata is captured:

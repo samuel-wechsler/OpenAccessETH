@@ -4,9 +4,8 @@ It retrieves lecture video links along with related metadata such as title, desc
 """
 
 import re
+from tqdm import tqdm
 import json
-import requests
-from bs4 import BeautifulSoup
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
@@ -260,63 +259,113 @@ def retrieve_meta_data(lecture_url):
     return meta
 
 
-def extract_catalogue_metadata(html, year):
-    """
-    """
-    data = []
+def extract_catalgogue_data(html, year):
+    lectures = []
 
-    department = {
-        "Architecture": "d-arch",
-        "Civil, Environmental and Geomatic Engineering": "d-baug",
-        "Biosystems Science and Engineering": "d-bsse",
-        "Computer Science": "d-infk",
-        "Information Technology and Electrical Engineering": "d-itet",
-        "Mechanical and Process Engineering": "d-mavt",
-        "Materials": "d-matl",
-        "Biology": "d-biol",
-        "Chemistry and Applied Biosciences": "d-chab",
-        "Mathematics": "d-math",
-        "Physics": "d-phys",
-        "Earth Sciences": "d-erdw",
-        "Environmental Systems Science": "d-usys",
-        "Health Sciences and Technology": "d-hest",
-        "Management, Technology, and Economics": "d-mtec",
-        "Humanities, Social and Political Sciences": "d-gess"
-    }
+    table = html.find('table')
 
-    for row in html.find_all('tr')[1:]:  # Assuming the first row is header
-        cols = row.find_all('td')
-        data.append({
-            'Name': cols[0].text.strip() + ", " + cols[1].text.strip(),
-            'Field': cols[3].text.strip(),
-            'Department': department[cols[4].text.strip()],
-            'year': str(year)
-        })
+    # Iterate through each row in the table
+    for row in table.find_all('tr'):
+        # Extract text from each cell in the row
+        columns = [col.text.strip() for col in row.find_all(['td', 'th'])]
 
-    return data
+        # Match the specific lecture format XXX-XXXX-XXL
+        if re.match(r'\d{3}-\d{4}-\d{2}L', columns[0]):
+            entry = {
+                "number": columns[0],
+                "title": columns[1],
+                "year": str(year),
+                "credits": columns[3],
+                "lecture/recitation": columns[4]
+            }
+            lectures.append(entry)
+    return lectures
 
 
-def get_course_catalogue(url=None):
+def get_course_catalogue_data():
     catalogue_data = []
 
-    # just for testing
-    if url is not None:
-        html = get_html(url)
-        data = extract_catalogue_metadata(html, "2024")
-        catalogue_data.extend(data)
-        return catalogue_data
-
-    for year in range(2018, 2025):
+    for year in tqdm(range(2006, 2024)):
         for semester in ["W", "S"]:
-            # specify url
             semester = str(year) + semester
-            base_url = f"https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheDozierende.view?rufname=&stammDeptId=&famname=&deptId=&bereichAbschnittId=&orderByColId=0&semkez={semester}&studiengangAbschnittId=&unterbereichAbschnittId=&studiengangTyp=&seite=0&lang=en"
-
-            # get html
-            html = get_html(base_url)
-
-            # extract metadata from html and add to list
-            data = extract_catalogue_metadata(html, year)
+            url = f"https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheLehrangebot.view?lerneinheitscode=&deptId=&famname=&unterbereichAbschnittId=&seite=0&lerneinheitstitel=&rufname=&kpRange=0,999&lehrsprache=&bereichAbschnittId=&semkez={semester}&studiengangAbschnittId=&studiengangTyp=&ansicht=1&lang=de&katalogdaten=&wahlinfo="
+            html = get_html(url)
+            data = extract_catalgogue_data(html, year)
             catalogue_data.extend(data)
 
-    return catalogue_data
+    return [i for n, i in enumerate(catalogue_data) if i not in catalogue_data[n + 1:]]
+
+
+# def extract_catalogue_metadata(html, year):
+#     """
+#     """
+#     data = []
+
+#     department = {
+#         "Architecture": "d-arch",
+#         "Civil, Environmental and Geomatic Engineering": "d-baug",
+#         "Biosystems Science and Engineering": "d-bsse",
+#         "Computer Science": "d-infk",
+#         "Information Technology and Electrical Engineering": "d-itet",
+#         "Mechanical and Process Engineering": "d-mavt",
+#         "Materials": "d-matl",
+#         "Biology": "d-biol",
+#         "Chemistry and Applied Biosciences": "d-chab",
+#         "Mathematics": "d-math",
+#         "Physics": "d-phys",
+#         "Earth Sciences": "d-erdw",
+#         "Environmental Systems Science": "d-usys",
+#         "Environmental Sciences": "d-usys",
+#         "Health Sciences and Technology": "d-hest",
+#         "Management, Technology, and Economics": "d-mtec",
+#         "Humanities, Social and Political Sciences": "d-gess"
+#     }
+
+#     for row in html.find_all('tr')[1:]:  # Assuming the first row is header
+#         cols = row.find_all('td')
+
+#         print(cols)
+
+#         if cols[4].text.strip() in department.keys():
+#             dep = department[cols[4].text.strip()]
+#         else:
+#             dep = cols[4].text.strip()
+
+#         data.append({
+#             'Name': cols[0].text.strip() + ", " + cols[1].text.strip(),
+#             'Field': cols[3].text.strip(),
+#             'Department': dep,
+#             'year': str(year)
+#         })
+
+#     return data
+
+
+# def get_course_catalogue(url=None):
+#     catalogue_data = []
+
+#     # just for testing
+#     if url is not None:
+#         html = get_html(url)
+#         data = extract_catalogue_metadata(html, "2024")
+#         catalogue_data.extend(data)
+#         return catalogue_data
+
+#     for year in tqdm(range(2006, 2024)):
+#         for semester in ["W", "S"]:
+#             # specify url
+#             semester = str(year) + semester
+
+#             # avoid bug of website
+#             if semester == "2024W":
+#                 continue
+#             base_url = f"https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheDozierende.view?rufname=&stammDeptId=&famname=&deptId=&bereichAbschnittId=&orderByColId=0&semkez={semester}&studiengangAbschnittId=&unterbereichAbschnittId=&studiengangTyp=&seite=0&lang=en"
+
+#             # get html
+#             html = get_html(base_url)
+
+#             # extract metadata from html and add to list
+#             data = extract_catalogue_metadata(html, year)
+#             catalogue_data.extend(data)
+
+#     return [i for n, i in enumerate(catalogue_data) if i not in catalogue_data[n + 1:]]

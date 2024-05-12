@@ -5,7 +5,7 @@ import pandas as pd
 
 # # Part 1: Retrieve all metadata from video.ethz.ch
 
-# # Create a SQLAlchemy engine
+# Create a SQLAlchemy engine
 engine = create_engine('sqlite:///lecture_data.db')
 
 # # Retrieve all lecture links from the database
@@ -43,7 +43,8 @@ engine = create_engine('sqlite:///lecture_data.db')
 # Part 2: Retrieve all entries from ETH's course catalogue
 
 # Retrieve course catalogue data
-course_data = get_course_catalogue()
+course_data = get_course_catalogue_data()
+
 
 # Convert the course data into a DataFrame
 df_courses = pd.DataFrame(course_data)
