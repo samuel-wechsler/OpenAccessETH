@@ -1,7 +1,9 @@
 # Evaluation of Accessibility of ETH Lecture Recordings
 
 ## Overview
-This repository contains Python scripts designed to extract metadata from the ETH Zurich video portal([https://video.ethz.ch/](https://video.ethz.ch/)) as well as ETH's course catalogue. The goal of this project is to assess the accessibility of lecture recordings offered by ETH Zurich.
+This repository contains a collection of Python scripts to evaluate the lecture accessibility of lecture recordings by ETH Zurich. Two main data sources are integrated into a SQL database:
+1. Metadata from ETH Zurich video portal ([https://video.ethz.ch/](https://video.ethz.ch/)) 
+2. ETHZ course catalogue ([https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheLehrangebotPre.view?lang=de](https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheLehrangebotPre.view?lang=de))
 
 ## Data Availability
 The datasets compiled in this project are accessible in both SQL and CSV formats. For each lecture series featured on the ETH Zurich video portal, the following metadata is captured:
@@ -42,24 +44,24 @@ To regenerate the visualizations, run `visuals.py`.
 ## Proof of Concept
 The efficacy of the scraper module (`scraper.py`) was validated through detailed testing of each function using a manageable subset of URLs. The results of these tests are documented in `test.py` and are summarized below:
 
-**Check: get_department_links**
-  - Outcome: No duplicate department URLs were found.
-  - Validation: The number of department links matched expectations.
+Check: get_department_links
+  - No duplicate department urls found.
+  - Correct number of departments.
 
-**Check: get_years**
-  - Outcome: No duplicate year links were found.
-  - Validation: The number of year links was correct.
+Check: get_years
+  - No duplicate year links found.
+  - Correct number of years.
 
-**Check: get_semester**
-  - Outcome: No duplicate semester links were found.
-  - Validation: The number of semesters matched expectations.
+Check: get_semester
+  - No duplicate semester links found.
+  - Correct number of semesters.
 
-**Check: get_lectures**
-  - Outcome: No duplicate lecture links were found.
-  - Validation: The number of lectures was correct.
+Check: get_lectures
+  - No duplicate lecture links found.
+  - Correct number of lectures.
 
-**Check: get_course_catalogue**
-  - Outcome: No duplicate courses were found.
-  - Validation: The number of courses matched expectations.
+Check: get_course_catalogue
+  - No duplicate courses found.
+  - Correct number of courses. 
 
-These checks confirm the reliability of the scraper module in accurately collecting and processing the required data from the ETH Zurich video portal.
+These tests establish some reliability of the scraper module in collecting and processing data from the indicated sources.

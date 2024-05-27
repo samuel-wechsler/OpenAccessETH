@@ -66,8 +66,10 @@ else:
 
 
 # Checking: get_course_catalogue (expected: 30 lectures, no duplicates)
-url = "https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheDozierende.view?lang=en&search=on&semkez=2024S&stammDeptId=&famname=&rufname=&studiengangTyp=&deptId=&studiengangAbschnittId=&search=Search"
-catalogue = get_course_catalogue(url)
+url = "https://www.vvz.ethz.ch/Vorlesungsverzeichnis/sucheLehrangebot.view?lerneinheitscode=&deptId=&famname=&unterbereichAbschnittId=&seite=1&lerneinheitstitel=&rufname=&kpRange=0,999&lehrsprache=&bereichAbschnittId=&semkez=2022W&studiengangAbschnittId=&studiengangTyp=&ansicht=1&lang=de&katalogdaten=&wahlinfo="
+
+html = get_html(url)
+catalogue = extract_catalgogue_data(html, 2022)
 
 # Convert the list of dictionaries into a list of tuples
 catalogue_tuples = [tuple(course.items()) for course in catalogue]
@@ -79,7 +81,8 @@ if len(catalogue_tuples) != len(set(catalogue_tuples)):
 else:
     print("  -> No duplicate courses found.")
 # Check the length of course catalogue
-if len(catalogue_tuples) != 30:
-    print("  -> Length of course catalogue is not 30!")
+if len(catalogue_tuples) != 15:
+    print(
+        f"  -> Length of course catalogue is not 15, but {len(catalogue_tuples)}!")
 else:
     print("  -> Correct number of courses.")

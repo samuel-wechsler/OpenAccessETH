@@ -12,7 +12,7 @@ engine = create_engine('sqlite:///lecture_data.db')
 # with engine.connect() as connection:
 #     links = connection.execute(text("SELECT url FROM lectures")).fetchall()
 
-# # Uncomment if you want to retrieve links from scratch
+# # Uncomment to repeform scraping process of links
 # # links = retrieve_lecture_links()
 
 # data = []
@@ -49,4 +49,4 @@ course_data = get_course_catalogue_data()
 # Convert the course data into a DataFrame
 df_courses = pd.DataFrame(course_data)
 # Append the data to the 'catalogue' table in the database
-df_courses.to_sql('catalogue', engine, if_exists='append', index=False)
+df_courses.to_sql('catalogue', engine, if_exists='replace', index=False)
