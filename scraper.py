@@ -16,15 +16,14 @@ SESSION = requests.Session()
 
 def get_html(url):
     """
-    Retrieves HTML content from a specified URL using a session with custom headers.
+    Fetches the HTML content for a given URL using a predefined session with specific headers to mimic a browser.
 
     Args:
-    url (str): URL of the website to retrieve HTML from.
+        url (str): The URL from which to fetch the HTML.
 
     Returns:
-    BeautifulSoup object: Parsed HTML content of the webpage.
+        BeautifulSoup: An object containing the parsed HTML content, or None if an error occurs.
     """
-
     # Define headers to mimic a legitimate browser requestpyth
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36",
@@ -42,13 +41,13 @@ def get_html(url):
 
 def get_department_links(url):
     """
-    Extracts unique department-specific lecture links from a given URL.
+    Extracts and returns a list of unique department-specific lecture links from a main site URL.
 
     Args:
-    url (str): URL of the main site to extract links from.
+        url (str): The URL of the main site to extract links from.
 
     Returns:
-    list: Unique URLs of department-specific lecture sections.
+        list: A list of URLs for department-specific lecture sections.
     """
     soup = get_html(url)
 
@@ -68,13 +67,13 @@ def get_department_links(url):
 
 def get_years(department_url):
     """
-    Extracts unique year-specific links from a department URL.
+    Extracts and returns a list of unique URLs for different academic years from a department URL.
 
     Args:
-    department_url (str): URL of the department page.
+        department_url (str): The URL of the department.
 
     Returns:
-    list: Unique URLs for different academic years.
+        list: A list of URLs for different academic years.
     """
     department = (department_url.split("/")[4]).split(".")[0]
     year_links = []
@@ -95,13 +94,13 @@ def get_years(department_url):
 
 def get_semester(year_link):
     """
-    Extracts semester-specific links from a year URL.
+    Extracts and returns a list of URLs for different semesters from a year-specific URL.
 
     Args:
-    year_link (str): URL of the year-specific page.
+        year_link (str): The URL of the academic year.
 
     Returns:
-    list: URLs for the 'spring' and 'autumn' semesters if available.
+        list: A list of URLs for the 'spring' and 'autumn' semesters.
     """
     soup = get_html(year_link)
     if not soup:
@@ -125,13 +124,13 @@ def get_semester(year_link):
 
 def get_lectures(url):
     """
-    Retrieves all lecture video links from a given semester page URL.
+    Retrieves and returns all lecture video links from a given semester page URL.
 
     Args:
-    url (str): URL of the semester page.
+        url (str): The URL of the semester page.
 
     Returns:
-    list: Links to individual lecture videos.
+        list: Links to individual lecture videos.
     """
     soup = get_html(url)
     if not soup:
@@ -150,13 +149,10 @@ def get_lectures(url):
 
 def retrieve_lecture_links_department(department_site):
     """
-    Extracts all lecture links for a given department over all years and semesters.
-
-    Args:
-    department_site (str): URL of the department.
+    Retrieves all available lecture links from the main site 'https://video.ethz.ch'.
 
     Returns:
-    list: All unique lecture links found.
+        list: All unique lecture links found on the site.
     """
     print(f"Starting link retrieval for {department_site}")
 
@@ -180,7 +176,7 @@ def retrieve_lecture_links():
     Retrieves all available lecture links from the main site 'https://video.ethz.ch'.
 
     Returns:
-    list: All unique lecture links found on the site.
+        list: All unique lecture links found on the site.
     """
     url = "https://video.ethz.ch/"
     links = []
@@ -260,6 +256,19 @@ def retrieve_meta_data(lecture_url):
 
 
 def extract_catalgogue_data(html, year):
+    """
+    Extracts and organizes course catalogue data from an HTML page into a structured list of dictionaries. 
+
+    Only courses characterized as "V" (indicating a lecture) in the 'lecture/recitation' field are included.
+
+    Args:
+        html (BeautifulSoup): The parsed HTML from the course catalogue page.
+        year (int): The year for which the catalogue data is being extracted.
+
+    Returns:
+        list: A list of dictionaries, each containing course details such as course number, title, credits, and lecture type.
+    """
+
     lectures = []
 
     table = html.find('table')
@@ -269,8 +278,8 @@ def extract_catalgogue_data(html, year):
         # Extract text from each cell in the row
         columns = [col.text.strip() for col in row.find_all(['td', 'th'])]
 
-        # Match the specific lecture format XXX-XXXX-XXL
-        if re.match(r'\d{3}-\d{4}-\d{2}L', columns[0]):
+        # Validate the course number format and ensure it's a lecture
+        if re.match(r'\d{3}-\d{4}-\d{2}L', columns[0]) and "V" in entry["lecture/recitation"]:
             entry = {
                 "number": columns[0],
                 "title": columns[1],
@@ -278,12 +287,18 @@ def extract_catalgogue_data(html, year):
                 "credits": columns[3],
                 "lecture/recitation": columns[4]
             }
-            if "V" in entry["lecture/recitation"]:
-                lectures.append(entry)
+
+            lectures.append(entry)
     return lectures
 
 
 def get_course_catalogue_data():
+    """
+    Retrieves course catalogue data across multiple years and semesters from a specified URL, filtering and deduplicating the data.
+
+    Returns:
+        list: A unique list of course entries from the catalogue data.
+    """
     catalogue_data = []
 
     for year in tqdm(range(2006, 2024)):
